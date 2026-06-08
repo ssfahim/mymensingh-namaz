@@ -13,6 +13,16 @@ const CONFIG = {
 const ROWS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const FARD = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
+// Bengali names alongside the English (for a Bangladeshi reader).
+const BN = {
+    Fajr: "ফজর",
+    Sunrise: "সূর্যোদয়",
+    Dhuhr: "জোহর",
+    Asr: "আসর",
+    Maghrib: "মাগরিব",
+    Isha: "এশা",
+};
+
 const pad = (n) => String(n).padStart(2, "0");
 const sanitize = (v) => (v || "").split(" ")[0].trim(); // "04:12 (+06)" -> "04:12"
 
@@ -99,7 +109,7 @@ function render() {
     // Next-prayer card
     const nextEl = document.getElementById("next");
     nextEl.hidden = false;
-    document.getElementById("nextName").textContent = `${nextName} · ${to12(t[nextName] || (TOMORROW_FAJR || ""))}`;
+    document.getElementById("nextName").textContent = `${nextName} ${BN[nextName] || ""} · ${to12(t[nextName] || (TOMORROW_FAJR || ""))}`;
     document.getElementById("nextCountdown").textContent = fmtCountdown(nextTime - now);
 
     // Times list
@@ -108,8 +118,7 @@ function render() {
     for (const name of ROWS) {
         const row = document.createElement("div");
         row.className = "row" + (name === currentName ? " current" : "");
-        const label = name === "Sunrise" ? "Sunrise" : name;
-        row.innerHTML = `<span class="name">${label}</span><span class="time">${to12(t[name])}</span>`;
+        row.innerHTML = `<span class="name">${name}<small class="bn">${BN[name] || ""}</small></span><span class="time">${to12(t[name])}</span>`;
         container.appendChild(row);
     }
 }

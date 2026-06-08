@@ -1,6 +1,6 @@
 // Caches the app shell so the page opens offline. Prayer data itself is cached
 // separately in localStorage by app.js.
-const CACHE = "namaz-shell-v1";
+const CACHE = "namaz-shell-v2";
 const SHELL = [
     "./",
     "./index.html",
