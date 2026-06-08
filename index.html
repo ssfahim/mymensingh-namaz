@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mymensingh Namaz</title>
+    <meta name="theme-color" content="#00695C" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- iPhone "Add to Home Screen" → full-screen app feel -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Namaz" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <main id="app">
+        <header>
+            <div class="city">Mymensingh, Bangladesh</div>
+            <div id="dateGregorian" class="date"></div>
+            <div id="dateHijri" class="date hijri"></div>
+        </header>
+
+        <section id="next" class="next-card" hidden>
+            <div class="next-label">Next prayer</div>
+            <div id="nextName" class="next-name">—</div>
+            <div id="nextCountdown" class="next-countdown">—</div>
+        </section>
+
+        <section id="times" class="times"></section>
+
+        <p id="status" class="status"></p>
+
+        <footer>
+            Hanafi · Islamic Foundation Bangladesh (Karachi) method.<br />
+            Calculated estimates — please confirm with your local masjid.
+        </footer>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
