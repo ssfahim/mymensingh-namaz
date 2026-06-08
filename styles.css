@@ -30,6 +30,7 @@ header {
 .city { font-size: 1.5rem; font-weight: 700; }
 .date { font-size: 1.05rem; color: var(--muted); margin-top: 4px; }
 .hijri { color: var(--accent); font-weight: 600; }
+.date.small { font-size: .95rem; opacity: .8; }
 
 .next-card {
     background: var(--card);
