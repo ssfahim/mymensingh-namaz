@@ -3,12 +3,40 @@
 // All "now" logic uses Asia/Dhaka time, NOT the device's timezone, so the next-prayer
 // countdown is correct even when the phone is set to another country.
 
+// The Islamic Foundation Bangladesh (IFB) — the timetable the whole country follows —
+// does NOT compute per-city astronomy. It publishes ONE master table for DHAKA and
+// derives every district by adding a fixed whole-minute "correction". So we anchor the
+// calculation to Dhaka's coordinates and then apply Mymensingh's official correction
+// (+2 min on every waqt). Calculating at Mymensingh's own coordinates instead — which is
+// what this app used to do — injected a spurious latitude-driven swing (Mymensingh is
+// ~0.94° north of Dhaka), pushing times up to ~3-4 min off Dhaka at the solstices and
+// flipping sign by season. Anchoring to Dhaka removes that drift and reproduces the
+// official IFB schedule, where Mymensingh is a steady ~2 min behind Dhaka.
+// Per-waqt offsets (minutes) calibrated to MATCH the Grameenphone "Ibadah" timer for
+// Mymensingh — the app the user actually checks. GP serves the Islamic Foundation
+// Bangladesh table and, notably, shows Mymensingh on the *Dhaka* table with NO district
+// correction. So we compute raw astronomical times for Dhaka (the IFB anchor) and apply
+// these fixed offsets to reproduce exactly what GP displays.
+//
+// Calibrated against GP Ibadah (location = Mymensingh) on 2026-06-15 — all match to the minute:
+//   GP:  Fajr 3:44  Dhuhr 12:02  Asr 4:38  Maghrib 6:51  Isha 8:17
+// Order = Aladhan `tune`: Imsak, Fajr, Sunrise, Dhuhr, Asr, Maghrib, Sunset, Isha, Midnight.
+//   Imsak +5   — Aladhan's Imsak field sits 10 min before Fajr; +5 lands Sehri 3 min before
+//                Subah Sadiq (a 6-min Sehri→Fajr gap, the IFB convention). GP Sehri not read off,
+//                so inferred — confirm against GP in Ramadan and adjust this one value if needed.
+//   Fajr +1, Dhuhr +3, Asr -1, Maghrib +4, Isha +2 — match the GP values above exactly.
+//   Sunrise -1 — informational (end of Fajr); GP doesn't show it, set to the IFB sunrise.
+// Twilight prayers (Fajr/Sehri/Isha) may differ ~1 min from GP across the year because
+// Aladhan's astronomical engine differs slightly from the one behind the IFB table.
+const GP_TUNE = "5,1,-1,3,-1,4,0,2,0";
+
 const CONFIG = {
-    latitude: 24.7471,
-    longitude: 90.4203,
-    method: 1,      // University of Islamic Sciences, Karachi (18°/18°) — Bangladesh standard
-    school: 1,      // Hanafi (later Asr)
+    latitude: 23.8103,   // Dhaka — IFB calculation anchor (GP serves the Dhaka-based IFB table)
+    longitude: 90.4125,  // Dhaka
+    method: 1,           // University of Islamic Sciences, Karachi (18°/18°) — IFB / Bangladesh standard
+    school: 1,           // Hanafi (later Asr)
     tz: "Asia/Dhaka",
+    tune: GP_TUNE,
 };
 
 const ROWS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
@@ -65,9 +93,13 @@ function tomorrowKey(now) {
 function monthUrl(year, month) {
     return `https://api.aladhan.com/v1/calendar/${year}/${month}` +
         `?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}` +
-        `&method=${CONFIG.method}&school=${CONFIG.school}&timezonestring=${CONFIG.tz}`;
+        `&method=${CONFIG.method}&school=${CONFIG.school}&timezonestring=${CONFIG.tz}` +
+        `&tune=${CONFIG.tune}`;
 }
-const cacheKey = (y, m) => `namaz_${y}_${m}`;
+// Bump this version whenever the calculation changes (anchor / tune / margins) so
+// returning users refetch instead of reading stale cached times. v4 = calibrated to
+// match the Grameenphone Ibadah timer for Mymensingh.
+const cacheKey = (y, m) => `namaz_v4_${y}_${m}`;
 
 async function getMonth(year, month) {
     const key = cacheKey(year, month);

@@ -1,6 +1,6 @@
 // Network-first for the app shell so updates appear as soon as the phone is online,
 // falling back to cache when offline. Prayer data itself is cached in localStorage.
-const CACHE = "namaz-shell-v3";
+const CACHE = "namaz-shell-v5";
 const SHELL = [
     "./",
     "./index.html",
